@@ -1,15 +1,12 @@
 (ns advent-of-code-2019.day01)
-(require '[clojure.string :as str])
 
-(defn required-fuel
-  [m]
+(defn required-fuel [m]
   (- (quot m 3) 2))
 
 (defn fuel [ms]
   (apply + (map required-fuel ms)))
 
-(defn required-fuel-fuel
-  [m]
+(defn required-fuel-fuel [m]
   (loop [r m
          f 0]
     (if (zero? r)
