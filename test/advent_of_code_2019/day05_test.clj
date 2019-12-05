@@ -3,13 +3,6 @@
             [clojure.string :as str]
             [advent-of-code-2019.day05 :refer :all]))
 
-(deftest int-computer-test-part1
-  (testing "the correct function of the int computer"
-    (is (= 2 (run [1, 0, 0, 0, 99])))
-    (is (= 2 (run [2,3,0,3,99])))
-    (is (= 2 (run [2,4,4,5,99,0])))
-    (is (= 30 (run [1,1,1,4,99,5,6,0,99])))))
-
 ;
 ; the results
 ; 
@@ -18,5 +11,6 @@
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 6627023 (run input)))))
+    (is (= 14522484 (last (run input 1))))
+    (is (= 4655956 (last (run input 5))))))
 

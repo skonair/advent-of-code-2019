@@ -1,57 +1,76 @@
 (ns advent-of-code-2019.day05)
-(require '[clojure.string :as str])
 
 (defn- exp [x n]
-  (reduce * (repeat n x)))
+    (reduce * (repeat n x)))
 
-(defn- get-next-input [ & ps] 
-  (println "< < < < INPUT")
-  1)
+(defn- get-param-mods [opcode i]
+  (mod (quot opcode (* 10 (exp 10 i))) 10))
 
-(defn- print-value [p & ps] (println "> > > > OUTPUT: " p)) 
+(defn- get-param [is pc i]
+  (case (get-param-mods (nth is pc) i)
+    1 (nth is (+ pc i))
+    0 (nth is (nth is (+ pc i)))))
 
-(defn- modify-is [is ps storeps value]
-  (comment println "modify-is " is ps storeps value)
-  (assoc is storeps value))
+(defn- handle-plus [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)
+         p3 (nth is (+ pc 3))]
+     [(assoc is p3 (+ p1 p2)) (+ pc 4)]))
 
-(defn- remain-is [is ps storeps value] 
-  (comment println "remain is " is ps storeps value)
-  is)
+(defn- handle-mult [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)
+         p3 (nth is (+ pc 3))]
+     [(assoc is p3 (* p1 p2)) (+ pc 4)]))
 
-(def ops {1 {:fnc + :params 3 :apply-fnc modify-is :store 1}
-          2 {:fnc * :params 3 :apply-fnc modify-is :store 1}
-          3 {:fnc get-next-input :params 1 :apply-fnc modify-is :store 1}
-          4 {:fnc print-value :params 1 :apply-fnc remain-is :store 0}}) 
+(defn- handle-input [is pc in]
+   (let [p1 (nth is (+ pc 1))]
+     [(assoc is p1 in) (+ pc 2)]))
 
-(defn- get-param [is pc pm n]
-  (comment println "get-param " is " " pc " " pm " " n)
-  (case pm
-    1 (nth is (+ pc n))
-    0 (nth is (nth is (+ pc n)))))
+(defn- handle-output [is pc]
+   (let [p1 (get-param is pc 1)]
+     [is (+ pc 2) p1]))
 
-(defn- parse-opcode [is pc]
-  (comment println "parse-opcode <start> " is pc)
-  (let [opn (mod (nth is pc) 100)
-        operation (ops opn)
-        pms (for [i (range (- (operation :params) (operation :store)))] (mod (quot (nth is pc) (* 100 (exp 10 i))) 10))
-        ps (for [i (range (- (operation :params) (operation :store)))] (get-param is (inc pc) (nth pms i) i))
-        storeps (if (zero? (operation :store)) nil (nth is (+ pc (operation :params))))]
-    (println ps storeps "---parse-opcode: " )
-    [operation ps storeps]))
+(defn- handle-jmp-if-true [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)]
+     [is (if (zero? p1) (+ pc 3) p2)]))
 
-(defn step [is pc]
-  (let [[operation ps storeps] (parse-opcode is pc)
-        value (apply (operation :fnc) ps)
-        nis ((operation :apply-fnc) is ps storeps value)]
-    (comment println "step: " value " / " is " -> " nis " with operation " operation " and ps " ps)
-    [((operation :apply-fnc) is ps storeps value) (operation :params)]))
+(defn- handle-jmp-if-false [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)]
+     [is (if (zero? p1) p2 (+ pc 3))]))
 
-(defn run [iis]
-  (loop [pc 0
-         is iis]
+(defn- handle-less-than [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)
+         p3 (nth is (+ pc 3))]
+     [(assoc is p3 (if (< p1 p2) 1 0)) (+ pc 4)]))
+
+(defn- handle-equals [is pc]
+   (let [p1 (get-param is pc 1)
+         p2 (get-param is pc 2)
+         p3 (nth is (+ pc 3))]
+     [(assoc is p3 (if (= p1 p2) 1 0)) (+ pc 4)]))
+
+(defn step [is pc in]
+  (case (mod (nth is pc) 10)
+    1 (handle-plus is pc)
+    2 (handle-mult is pc)
+    3 (handle-input is pc in)
+    4 (handle-output is pc)
+    5 (handle-jmp-if-true is pc)
+    6 (handle-jmp-if-false is pc)
+    7 (handle-less-than is pc)
+    8 (handle-equals is pc)
+    ))
+
+(defn run [iis in]
+  (loop [is iis
+         pc 0
+         akk []]
     (if
-      (= 99 (nth is pc)) (first is)
-      (let [nis (step is pc)]
-        (comment println "nis is " nis)
-        (recur (+ pc (second nis) 1) (first nis) )))))
+      (= 99 (nth is pc)) akk
+      (let [[nis npc & out] (step is pc in)]
+        (recur nis npc (if (nil? out) akk (concat akk out))))))) 
 
