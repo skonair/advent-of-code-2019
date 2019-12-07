@@ -11,6 +11,6 @@
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 14522484 (last (run input 1))))
-    (is (= 4655956 (last (run input 5))))))
+    (is (= 14522484 (run input 1)))
+    (is (= 4655956 (run input 5)))))
 

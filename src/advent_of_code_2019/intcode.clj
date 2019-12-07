@@ -74,3 +74,6 @@
     8 (handle-equals state)
     99 (handle-halt state)))
 
+(defn create-state [iis params]
+  {:is iis :pc 0 :params params :halt? false})
+

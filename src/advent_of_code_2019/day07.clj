@@ -4,7 +4,7 @@
     [advent-of-code-2019.utils :as utils]))
 
 (defn- run [iis in]
-  (loop [state {:is iis :pc 0 :params in :halt? false}]
+  (loop [state (intcode/create-state iis in)]
     (if (state :halt?) 
       state
       (recur (intcode/step state)))))
@@ -29,11 +29,8 @@
       (let [next-state (intcode/step state)]
         (recur next-state (> (count (next-state :params)) (count (state :params))))))))
 
-(defn- create-state [iis phase-input]
-  {:is iis :pc 0 :params [phase-input] :halt? false})
-
 (defn- amp-loop [iis phase-inputs]
-  (loop [amps (into [] (map #(create-state iis %) phase-inputs))
+  (loop [amps (into [] (map #(intcode/create-state iis [%]) phase-inputs))
          a 0
          in2 0]
     (let [next-amp (run-loop (nth amps a) in2)]
