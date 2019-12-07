@@ -38,12 +38,12 @@
 
 (defn- handle-input [state]
    (let [p1 (get-param-immediate state 1)
-         [i & is] (state :in)]
-     (assoc state :is (assoc (state :is) p1 i) :pc (+ (state :pc) 2) :in is)))
+         [i & is] (state :params)]
+     (assoc state :is (assoc (state :is) p1 i) :pc (+ (state :pc) 2) :params is)))
 
 (defn- handle-output [state]
    (let [p1 (get-param state 1)]
-     (assoc state :pc (+ (state :pc) 2) :out (conj (state :out) p1))))
+     (assoc state :pc (+ (state :pc) 2) :params (conj (state :params) p1))))
 
 (defn- handle-jmp-if-true [state]
    (let [p1 (get-param state 1)
@@ -86,19 +86,43 @@
 (defn- insert-list [l n]
   (concat [(first l)] [n] (rest l)))
 
+(defn run-loop [start-state in]
+  (loop [state (assoc start-state :params (conj (start-state :params) in))
+         signal? false]
+    (if (or signal? (state :halt?))
+      state
+      (let [next-state (step state)]
+        (recur next-state (> (count (next-state :params)) (count (state :params))))))))
+
+(defn- create-state [iis phase-input]
+  {:is iis :pc 0 :params [phase-input] :halt? false})
+
+(defn- amp-loop [iis phase-inputs]
+  (loop [amps (into [] (map #(create-state iis %) phase-inputs))
+         a 0
+         in2 0]
+    (let [next-amp (run-loop (nth amps a) in2)]
+      (if (next-amp :halt?)
+        (first (next-amp :params))
+        (recur (assoc amps a next-amp) (mod (inc a) 5) (first (next-amp :params)))))))
+
+(defn highest-amp-loop [iis]
+    (apply max
+      (map #(amp-loop iis %) (permutations (range 5 10)))))
+
 (defn run [iis in]
-  (loop [state {:is iis :pc 0 :in in :out [] :halt? false}]
+  (loop [state {:is iis :pc 0 :params in :halt? false}]
     (if (state :halt?) 
-      (last (state :out))
+      state
       (recur (step state)))))
 
-(defn- amp [iis in]
-  (loop [[i & is] in
+(defn- amp [iis phase-inputs]
+  (loop [[phase-input & is] phase-inputs
          in2 0]
-    (if (nil? i)
+    (if (nil? phase-input)
       in2
-      (let [next-run (run iis [i in2])]
-        (recur is next-run)))))
+      (let [next-run (run iis [phase-input in2])]
+        (recur is (last (next-run :params)))))))
 
 (defn highest-amp [iis]
     (apply max
