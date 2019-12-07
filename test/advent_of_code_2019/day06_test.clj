@@ -30,5 +30,5 @@
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
     (is (= 160040 (count (all-orbits input))))
-    (is (= -1 (minimum-orbit-hops input "YOU" "SAN")))))
+    (is (= 373 (minimum-orbit-hops input "YOU" "SAN")))))
 
