@@ -10,5 +10,6 @@
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 2356 (image-checksum input)))))
+    (is (= 2356 (image-checksum input)))
+    (is (= '(nil nil nil nil nil nil) (show-image input 25))))) ; output is PZEKB
 

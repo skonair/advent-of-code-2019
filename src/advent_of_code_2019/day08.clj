@@ -11,3 +11,15 @@
   (let [layer (fewest-zeros in)]
     (* (count-chars layer \1) (count-chars layer \2))))
 
+(defn- get-pixel [cs]
+  (loop [[a & as] cs]
+    (case a
+      nil (throw (RuntimeException. "No colored color found."))
+      \0 " "
+      \1 "*"
+      \2 (recur as))))
+
+(defn show-image [in width]
+  (let [image-layers (map get-pixel (apply map vector in))]
+    (for [pil (partition width image-layers)] (println pil))))
+
