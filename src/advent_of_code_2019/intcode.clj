@@ -10,25 +10,36 @@
 (defn- get-param-immediate [state i]
   (nth (state :is)  (+ (state :pc) i)))
 
+(defn- get-param-relative [state i]
+  (let [p (+ (state :rbase) (nth (state :is) (+ (state :pc) i)))]
+    (nth (state :is) p)))
+
 (defn- get-param [state i]
   (case (get-param-mods (nth (state :is) (state :pc)) i)
     0 (get-param-position state i)
-    1 (get-param-immediate state i)))
+    1 (get-param-immediate state i)
+    2 (get-param-relative state i)))
+
+(defn- get-store-param [state i]
+  (let [pm (get-param-mods (nth (state :is) (state :pc)) i)]
+    (case pm 
+      2 (+ (nth (state :is) (+ (state :pc) i)) (state :rbase))
+      0 (nth (state :is)  (+ (state :pc) i)))))
 
 (defn- handle-plus [state]
    (let [p1 (get-param state 1)
          p2 (get-param state 2)
-         p3 (get-param-immediate state 3)]
+         p3 (get-store-param state 3)]
      (assoc state :is (assoc (state :is) p3 (+ p1 p2)) :pc (+ (state :pc) 4))))
 
 (defn- handle-mult [state]
    (let [p1 (get-param state 1)
          p2 (get-param state 2)
-         p3 (get-param-immediate state 3)]
+         p3 (get-store-param state 3)]
      (assoc state :is (assoc (state :is) p3 (* p1 p2)) :pc (+ (state :pc) 4))))
 
 (defn- handle-input [state]
-   (let [p1 (get-param-immediate state 1)
+   (let [p1 (get-store-param state 1)
          [i & is] (state :params)]
      (assoc state :is (assoc (state :is) p1 i) :pc (+ (state :pc) 2) :params is)))
 
@@ -50,14 +61,18 @@
 (defn- handle-less-than [state]
    (let [p1 (get-param state 1)
          p2 (get-param state 2)
-         p3 (get-param-immediate state 3)]
+         p3 (get-store-param state 3)]
      (assoc state :is (assoc (state :is) p3 (if (< p1 p2) 1 0)) :pc (+ (state :pc) 4))))
 
 (defn- handle-equals [state]
    (let [p1 (get-param state 1)
          p2 (get-param state 2)
-         p3 (get-param-immediate state 3)]
+         p3 (get-store-param state 3)]
      (assoc state :is (assoc (state :is) p3 (if (= p1 p2) 1 0)) :pc (+ (state :pc) 4))))
+
+(defn- handle-adjust-rbase [state]
+  (let [p1 (get-param state 1)]
+    (assoc state :rbase (+ p1 (state :rbase)) :pc (+ (state :pc) 2))))
 
 (defn- handle-halt [state]
   (assoc state :halt? true))
@@ -72,8 +87,14 @@
     6 (handle-jmp-if-false state)
     7 (handle-less-than state)
     8 (handle-equals state)
+    9 (handle-adjust-rbase state)
     99 (handle-halt state)))
 
 (defn create-state [iis params]
-  {:is iis :pc 0 :params params :halt? false})
-
+  {:is (into [] (concat iis (repeat 110 0))) :pc 0 :params params :halt? false :rbase 0})
+ 
+(defn run [iis in]
+  (loop [state (create-state iis in)]
+    (if (state :halt?)
+      state
+      (recur (step state)))))
