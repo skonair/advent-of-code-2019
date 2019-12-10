@@ -37,17 +37,14 @@
         dy (- y2 y1)]
     (Math/atan2 dx dy)))
 
-(def example '([1 0] [4 0] [0 2] [1 2] [2 2] [3 2] [4 2] [4 3] [3 4] [4 4]))
 
-(max-asteroids (parse-lines (str/split (slurp "resources/day10/input.txt") #"\n"))) ; [[22 19] 282]
-
-(max-asteroids (parse-lines (str/split (slurp "resources/day10/example1.txt") #"\n")))
-
-(nth (reverse (partition-by first (sort-by first (map #(vector (angle [22 19] %) %) input)))) 199) ; ([-2.312743594800814 [10 8]])
+(defn nth-vaporized [n a as]
+  (let [[angle [x y]] 
+        (first
+          (nth 
+            (reverse 
+              (partition-by first 
+                      (sort-by first 
+                               (map #(vector (angle a %) %) as)))) (dec n)))]
+    (+ (* 100 x) y)))
   
-(defn- parse-line [l y]
-  (map #(vector (first %) y) (filter #(= \# (second %)) (map-indexed (fn [i e] [i e]) l))))
-
-(defn parse-lines [lines]
-  (apply concat
-    (map-indexed (fn [i e] (parse-line e i)) lines)))
