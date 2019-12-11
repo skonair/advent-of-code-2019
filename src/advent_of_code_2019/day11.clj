@@ -24,51 +24,34 @@
     :DOWN [x (dec y)]
     :LEFT [(dec x) y]))
 
-(defn- new-world [world position color]
-  (case color
-    1 (conj world position)
-    0 (remove #{position} world)))
-  
-(defn- update-on-output [[direction color] world position rotation]
-  (let [new-rotation (rotate rotation direction)
-        new-position (new-pos position new-rotation)
-        new-wrld (new-world world position color)]
-    [new-wrld new-position new-rotation]))
-
-(defn- get-color [world position]
-  (if (some #{position} world) 1 0))
-
 (defn paint-robot [iis initial-world]
   (loop [state (intcode/create-state (into [] (concat iis (repeat 500 0))) [])
         world initial-world
-        visited #{}
         position [0 0]
         rotation :UP]
-  (let [color (get-color world position)
-        new-state (compute state color)]
+  (let [new-state (compute state (get world position 0))]
     (if (new-state :halt?)
-      [(count visited) world] 
-      (let [[nw np nr] (update-on-output (new-state :params) world position rotation)]
-        (recur new-state nw (conj visited np) np nr))))))
+      world 
+      (let [[direction color] (new-state :params)
+            new-rotation (rotate rotation direction)]
+        (recur new-state (assoc world position color) (new-pos position new-rotation) new-rotation))))))
 
 (defn part1 [iis]
-  (first (paint-robot iis #{})))
+  (count (paint-robot iis {})))
   
-(defn- paint-line [world minx maxx]
+(defn- paint-line [world y minx maxx]
    (apply str
      (for [x (range minx (inc maxx))]
-       (if (some #{x} world) "#" " "))))
+       (let [color (get world [x y] 0)]
+         (if (zero? color) " " "#")))))
 
 (defn- paint-world [world]
-  (let [mfw (map first world)
-        msw (map second world)]
+  (let [mfw (map first (keys world))
+        msw (map second (keys world))]
     (for [y (range (apply max msw) (dec (apply min msw)) -1)]
       (println 
-        (paint-line 
-          (map first (filter #(= y (second %)) world)) 
-          (apply min mfw)
-          (apply max mfw))))))
+        (paint-line world y (apply min mfw) (apply max mfw))))))
 
-(defn part2 [iip]
-  (paint-world (second (paint-robot iip #{[0 0]}))))
+(defn part2 [iis]
+  (paint-world (paint-robot iis {[0 0] 1})))
   
