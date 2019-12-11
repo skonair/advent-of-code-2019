@@ -87,7 +87,7 @@
     99 (handle-halt state)))
 
 (defn create-state [iis params]
-  {:is (into [] (concat iis (repeat 110 0))) :pc 0 :params params :halt? false :rbase 0})
+  {:is (into [] (concat iis (repeat 500 0))) :pc 0 :params params :halt? false :rbase 0})
  
 (defn run [iis in]
   (loop [state (create-state iis in)]
