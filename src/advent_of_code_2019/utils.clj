@@ -24,7 +24,7 @@
            (map #(cons x %) (permutations (remove #{x} s)))))
         [s])))
 
-(defn- signum [e]
+(defn signum [e]
   (cond
     (< e 0) -1
     (> e 0) 1

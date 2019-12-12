@@ -11,9 +11,7 @@
 (deftest total-energy-test
   (testing "the correct total energy"
     (is (= 179 (total-energy test-input1 10)))
-    (is (= 1940 (total-energy test-input2 100) )))
-  (testing "the correct amount of fuel for several masses"
-    (is (= 34241 (fuel [12 14 1969 100756])))))
+    (is (= 1940 (total-energy test-input2 100) ))))
 
 (deftest repetitions-test
   (testing "the correct steps after a first repetition occured"
@@ -28,6 +26,6 @@
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 9876 (total-energy input)))
+    (is (= 9876 (total-energy input 1000)))
     (is (= 307043147758488 (first-repetition input)))))
 

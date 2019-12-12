@@ -1,24 +1,24 @@
 (ns advent-of-code-2019.day12
-  (:require [advent-of-code-2019.utils :as utils])
+  (:require [advent-of-code-2019.utils :as utils]))
 
 (defn- vector-diff [v1 v2]
-  (map utils/signum (v- v1 v2)))
+  (map utils/signum (utils/v- v1 v2)))
 
 (defn- new-velocity [mp mps]
-    (v+ (:vel mp)
-      (apply v+  (map #(vector-diff % (:pos mp)) (map :pos mps)))))
+    (utils/v+ (:vel mp)
+      (apply utils/v+  (map #(vector-diff % (:pos mp)) (map :pos mps)))))
 
 (defn- position [state]
   (for [s state] 
     (let [v (new-velocity s state)
-          p (v+ (:pos s) v)]
+          p (utils/v+ (:pos s) v)]
       {:pos p :vel v})))
 
 (defn- potential-energy [m]
-  (apply + (map abs (:pos m))))
+  (apply + (map utils/abs (:pos m))))
 
 (defn- kinetic-energy [m]
-  (apply + (map abs (:vel m))))
+  (apply + (map utils/abs (:vel m))))
 
 (defn- energy [m]
   (* (potential-energy m) (kinetic-energy m)))
