@@ -1,6 +1,6 @@
 (ns advent-of-code-2019.utils)
 
-(defn- abs [n] 
+(defn abs [n] 
   (max n (- n)))
 
 (defn exp [x n]
