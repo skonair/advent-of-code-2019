@@ -1,33 +1,33 @@
-(ns advent-of-code-2019.day01-test
+(ns advent-of-code-2019.day12-test
   (:require [clojure.test :refer :all]
             [clojure.string :as str]
-            [advent-of-code-2019.day01 :refer :all]))
+            [advent-of-code-2019.day12 :refer :all]))
 
-(deftest fuel-by-mass-test-part1
-  (testing "the corrext amount of fuel for a given mass"
-    (is (= 2 (required-fuel 12)))
-    (is (= 2 (required-fuel 14)))
-    (is (= 654 (required-fuel 1969)))
-    (is (= 33583 (required-fuel 100756) )))
+(def test-input1
+    [{:pos [-1 0 2] :vel [0 0 0]} {:pos [2 -10 -7] :vel [0 0 0]} {:pos [4 -8 8] :vel [0 0 0]} {:pos [3 5 -1] :vel [0 0 0]}])
+(def test-input2
+   [{:pos [-8 -10 0] :vel [0 0 0]} {:pos [5 5 10] :vel [0 0 0]} {:pos [2 -7 3] :vel [0 0 0]} {:pos [9 -8 -3] :vel [0 0 0]}])
+
+(deftest total-energy-test
+  (testing "the correct total energy"
+    (is (= 179 (total-energy test-input1 10)))
+    (is (= 1940 (total-energy test-input2 100) )))
   (testing "the correct amount of fuel for several masses"
     (is (= 34241 (fuel [12 14 1969 100756])))))
 
-(deftest fuel-by-mass-test-part2
-  (testing "the correct amount of fuel-fuel-fuel... for a given mass"
-    (is (= 2 (required-fuel-fuel 14)))
-    (is (= 966 (required-fuel-fuel 1969)))
-    (is (= 50346 (required-fuel-fuel 100756) )))
-  (testing "the correct amount of fuel for several masses"
-    (is (= 51314 (fuel-fuel [14 1969 100756])))))
+(deftest repetitions-test
+  (testing "the correct steps after a first repetition occured"
+    (is (= 2772 (first-repetition test-input1)))
+    (is (= 4686774924 (first-repetition test-input2)))))
 
 ;
 ; the results
 ; 
 (def input
-    (map #(Long/parseLong %) (str/split (slurp "resources/day01/input.txt") #"\n")))
+  [{:pos [17 5 1] :vel [0 0 0]} {:pos [-2 -8 8] :vel [0 0 0]} {:pos [7 -6 14] :vel [0 0 0]} {:pos [1 -10 4] :vel [0 0 0]}])
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 3150224 (fuel input)))
-    (is (= 4722484 (fuel-fuel input)))))
+    (is (= 9876 (total-energy input)))
+    (is (= 307043147758488 (first-repetition input)))))
 
