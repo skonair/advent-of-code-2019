@@ -41,7 +41,7 @@
 
 (defn- handle-output [state]
    (let [p1 (eval-param state 1)]
-     (assoc state :pc (+ (state :pc) 2) :params (conj (state :params) p1))))
+     (assoc state :pc (+ (state :pc) 2) :params (vec (conj (state :params) p1)))))
 
 (defn- handle-jmp-if-true [state]
    (let [p1 (eval-param state 1)
