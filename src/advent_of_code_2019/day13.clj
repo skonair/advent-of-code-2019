@@ -54,16 +54,16 @@
           (recur next-state)))))
 
 (defn- tile [world x y]
-  (world [x y]))
+  (tile-to-char (world [x y])))
 
 (defn- print-line [world y]
   (apply str 
     (for [x (range 44)] (tile world x y))))
 
 (defn- print-world [world]
-  (for [y (range 22)]
-    (println (print-line world y))))
-
+  (Thread/sleep 50)
+  (println
+    (str/join "\n" (for [y (range 22)] (print-line world y)))))
 
 (defn- update-world [world x y t]
   (assoc world [x y] t))
@@ -78,6 +78,7 @@
   (first (first (filter #(= 3 (second %)) world))))
 
 (defn- compute-input [world]
+  (comment print-world world)
   (let [ball-x (first (get-ball world))
         paddle-x (first (get-paddle world))]
     (comment println "comp-inp (ball/paddle) - x: " ball-x paddle-x)
