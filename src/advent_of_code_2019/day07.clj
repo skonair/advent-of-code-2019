@@ -22,7 +22,7 @@
       (map #(amp iis %) (utils/permutations (range 5)))))
 
 (defn- run-loop [start-state in]
-  (loop [state (assoc start-state :params (conj (start-state :params) in))
+  (loop [state (assoc start-state :params (vec (conj (start-state :params) in)))
          signal? false]
     (if (or signal? (state :halt?))
       state

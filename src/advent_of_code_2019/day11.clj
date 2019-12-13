@@ -32,7 +32,7 @@
   (let [new-state (compute state (get world position 0))]
     (if (new-state :halt?)
       world 
-      (let [[direction color] (new-state :params)
+      (let [[color direction] (new-state :params)
             new-rotation (rotate rotation direction)]
         (recur new-state (assoc world position color) (new-pos position new-rotation) new-rotation))))))
 

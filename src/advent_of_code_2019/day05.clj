@@ -4,6 +4,6 @@
 (defn run [iis in]
   (loop [state (intcode/create-state iis [in])]
     (if (state :halt?)
-      (first (state :params))
+      (last (state :params))
       (recur (intcode/step state)))))
 
