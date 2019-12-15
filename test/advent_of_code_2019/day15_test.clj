@@ -11,5 +11,5 @@
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
     (is (= 308 (part1 input)))
-    (is (= [nil nil nil nil nil nil] (part2 input)))))
+    (is (= 328 (part2 input)))))
 
