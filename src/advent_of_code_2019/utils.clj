@@ -32,6 +32,7 @@
 
 (def v+ (partial mapv +))
 (def v- (partial mapv -))
+(def v* (partial mapv *))
 
 (defn gcd [a b]
   (if (zero? b)
