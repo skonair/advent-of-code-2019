@@ -1,28 +1,26 @@
 (ns advent-of-code-2019.day17
   (:require [advent-of-code-2019.intcode :as intcode]))
 
-(defn- compute [initial-state]
-  (loop [state (assoc initial-state :params [])]
+(defn- run [in]
+  (loop [state (intcode/create-state (into [] (concat in (repeat 10000 0))) [])]
     (if (state :halt?)
-      state
-      (let [next-state (intcode/step state)]
-        (if (= 1 (count (next-state :params)))
-          next-state
-          (recur next-state))))))
+      (:out state)
+      (recur (intcode/step state)))))
 
+(defn- print-grid [grid]
+  (println (apply str (map char grid))))
 
-
-(defn- get-grid [in]
-  (loop [state (intcode/create-state (into [] (concat in (repeat 10000 0))) [])
-         pos [0 0]
+(defn- get-grid [grid]
+  (loop [[g & gs] grid
+         x 0
+         y 0
          akk {}]
-    (if (state :halt?)
+    (if (nil? g)
       akk
-      (let [next-state  (compute state)
-            param (first (next-state :params))
-            new-pos (if (= param 10) [0 (inc (second pos))] [(inc (first pos)) (second pos)])
-            new-akk (if (= param 10) akk (assoc akk [(first new-pos) (second new-pos)] param))]
-        (recur next-state new-pos new-akk)))))
+      (let [new-x (if (= g 10) 0 (inc x))
+            new-y (if (= g 10) (inc y) y)
+            new-akk (if (= g 10) akk (assoc akk [new-x new-y] g))]
+        (recur gs new-x new-y new-akk)))))
 
 (defn- crossing? [x y maze]
   (let [pc (maze [x y])
@@ -32,22 +30,21 @@
         pw (maze [(dec x) y])]
   (and (= 35 pc) (= 35 pn) (= 35 ps) (= 35 pe) (= 35 pw))))
 
-(defn- crossings [maze]
-  (apply +
-    (for [x (range 46)
-          y (range 51)]
-      (if (crossing? x y maze) 
-        (do (println "Crossing found " x y) (* (dec x) y))
-        0))))
+(defn part1 [in]
+  (let [grid (get-grid (run in))]
+    (apply +
+      (for [x (range 46)
+            y (range 51)]
+        (if (crossing? x y grid)
+          (* (dec x) y)
+          0)))))
           
-(defn- print-grid [maze]
-  (let [min-x 1
-        max-x 45
-        min-y 0
-        max-y 50]
-    (for [y (range min-y (inc max-y))]
-      (println (apply str
-      (for [x (range min-x (inc max-x))]
-        (let [elem (maze [x y])]
-          (or (char elem) "?"))))))))
-  
+; manually constructed
+(def pms [65 44 66 44 65 44 66 44 67 44 67 44 66 44 67 44 66 44 65 10 82 44 49 50 44 76 44 56 44 82 44 49 50 10 82 44 56 44 82 44 54 44 82 44 54 44 82 44 56 10 82 44 56 44 76 44 56 44 82 44 56 44 82 44 52 44 82 44 52 10 110 10])
+
+(defn part2 [in]
+  (loop [state (intcode/create-state (into [] (concat (assoc in 0 2) (repeat 10000 0))) pms)]
+    (if (state :halt?)
+      (last (:out state))
+      (recur (intcode/step state)))))
+

@@ -2,11 +2,11 @@
   (:require [advent-of-code-2019.intcode :as intcode]))
 
 (defn- compute [initial-state color]
-  (loop [state (assoc initial-state :params [color])]
+  (loop [state (assoc initial-state :in [color])]
     (if (state :halt?)
       state
       (let [next-state (intcode/step state)]
-        (if (= 2 (count (next-state :params)))
+        (if (= 2 (count (next-state :out)))
           next-state
           (recur next-state))))))
 
@@ -32,7 +32,7 @@
   (let [new-state (compute state (get world position 0))]
     (if (new-state :halt?)
       world 
-      (let [[color direction] (new-state :params)
+      (let [[color direction] (new-state :out)
             new-rotation (rotate rotation direction)]
         (recur new-state (assoc world position color) (new-pos position new-rotation) new-rotation))))))
 

@@ -15,19 +15,19 @@
     (if (nil? phase-input)
       in2
       (let [next-run (run iis [phase-input in2])]
-        (recur is (last (next-run :params)))))))
+        (recur is (last (next-run :out)))))))
 
 (defn highest-amp [iis]
     (apply max
       (map #(amp iis %) (utils/permutations (range 5)))))
 
 (defn- run-loop [start-state in]
-  (loop [state (assoc start-state :params (vec (conj (start-state :params) in)))
+  (loop [state (assoc start-state :in (vec (conj (start-state :in) in)))
          signal? false]
     (if (or signal? (state :halt?))
       state
       (let [next-state (intcode/step state)]
-        (recur next-state (> (count (next-state :params)) (count (state :params))))))))
+        (recur next-state (> (count (next-state :out)) (count (state :out))))))))
 
 (defn- amp-loop [iis phase-inputs]
   (loop [amps (into [] (map #(intcode/create-state iis [%]) phase-inputs))
@@ -35,8 +35,8 @@
          in2 0]
     (let [next-amp (run-loop (nth amps a) in2)]
       (if (next-amp :halt?)
-        (first (next-amp :params))
-        (recur (assoc amps a next-amp) (mod (inc a) 5) (first (next-amp :params)))))))
+        (first (next-amp :out))
+        (recur (assoc amps a next-amp) (mod (inc a) 5) (first (next-amp :out)))))))
 
 (defn highest-amp-loop [iis]
     (apply max

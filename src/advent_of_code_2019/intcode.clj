@@ -36,12 +36,12 @@
 
 (defn- handle-input [state]
    (let [p1 (get-param state 1)
-         [i & is] (state :params)]
-     (assoc state :is (assoc (state :is) p1 i) :pc (+ (state :pc) 2) :params is)))
+         [i & is] (state :in)]
+     (assoc state :is (assoc (state :is) p1 i) :pc (+ (state :pc) 2) :in is)))
 
 (defn- handle-output [state]
    (let [p1 (eval-param state 1)]
-     (assoc state :pc (+ (state :pc) 2) :params (vec (conj (state :params) p1)))))
+     (assoc state :pc (+ (state :pc) 2) :out (vec (conj (state :out) p1)))))
 
 (defn- handle-jmp-if-true [state]
    (let [p1 (eval-param state 1)
@@ -87,7 +87,7 @@
     99 (handle-halt state)))
 
 (defn create-state [iis params]
-  {:is (into [] (concat iis (repeat 500 0))) :pc 0 :params params :halt? false :rbase 0})
+  {:is (into [] (concat iis (repeat 500 0))) :pc 0 :in params :halt? false :rbase 0})
  
 (defn run [iis in]
   (loop [state (create-state iis in)]

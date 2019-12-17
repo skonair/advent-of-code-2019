@@ -4,5 +4,5 @@
     [advent-of-code-2019.utils :as utils]))
 
 (defn run [iis in]
-  (first ((intcode/run iis in) :params)))
+  (first ((intcode/run iis in) :out)))
 

@@ -4,9 +4,9 @@
   (:require [advent-of-code-2019.intcode :as intcode]))
 
 (defn- compute [initial-state]
-  (loop [state (assoc initial-state :params [])]
+  (loop [state (assoc initial-state :in [])]
       (let [next-state (intcode/step state)]
-        (if (= 3 (count (next-state :params)))
+        (if (= 3 (count (next-state :out)))
           next-state
           (recur next-state)))))
 
@@ -15,9 +15,9 @@
   (loop [state (intcode/create-state (into [] (concat iis (repeat 500 0))) [])
          block-tiles #{}]
     (if (state :halt?)
-      (count (filter #(= 2 (nth % 2)) (partition 3 (:params state))))
+      (count (filter #(= 2 (nth % 2)) (partition 3 (:out state))))
       (let [new-state (intcode/step state)
-            [x y t] (:params new-state)
+            [x y t] (:out new-state)
             new-block-tiles (if (= 2 t) (conj block-tiles [x y]) block-tiles)]
         (recur new-state new-block-tiles)))))
 
@@ -38,7 +38,7 @@
   (count (filter #(= i (nth % 2)) (partition 3 params))))
   
 (defn- run-game [start-state in]
-  (loop [state (assoc start-state :params in)]
+  (loop [state (assoc start-state :in in)]
     (if (state :halt?)
       state
       (let [next-state (intcode/step state)]
@@ -46,10 +46,10 @@
 
 (defn- compute2 [initial-state in]
   (comment println "compute2.in: " in)
-  (loop [state (assoc initial-state :params in)]
+  (loop [state (assoc initial-state :in in)]
       (let [next-state (intcode/step state)]
-        (comment if (not (= (count (:params next-state)) (count (:params state)))) (println "compute2. params: " (:params next-state)))
-        (if (= 3 (count (next-state :params)))
+        (comment if (not (= (count (:out next-state)) (count (:out state)))) (println "compute2. params: " (:out next-state)))
+        (if (= 3 (count (next-state :out)))
           next-state
           (recur next-state)))))
 
@@ -95,10 +95,10 @@
            in []
            initial? true]
       (if (and (not initial?) (zero? (get-tile-count world 2)))
-        (last (:params (compute2 state [])))
+        (last (:out (compute2 state [])))
         (let [
               new-state (compute2 state (vec in))
-              [x y t & rs] (:params new-state)
+              [x y t & rs] (:out new-state)
               new-world (update-world world x y t)
               new-in (if (or (and initial? (= x -1)) (and (not initial?) (= t 4))) (vec (compute-input new-world)) [])
             ]

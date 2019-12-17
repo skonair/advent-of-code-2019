@@ -3,11 +3,11 @@
   (:require [advent-of-code-2019.intcode :as intcode]))
 
 (defn- compute [initial-state color]
-  (loop [state (assoc initial-state :params [color])]
+  (loop [state (assoc initial-state :in [color])]
     (if (state :halt?)
       state
       (let [next-state (intcode/step state)]
-        (if (> (count (next-state :params)) (count (state :params)))
+        (if (> (count (next-state :out)) (count (state :out)))
           next-state
           (recur next-state))))))
 
@@ -35,7 +35,7 @@
           (let [[add-qs nv nf nm] (squash-results
             (for [[d dx dy] deltas]
               (let [next-state (compute (:state q) d)
-                    res (first (:params next-state))
+                    res (first (:out next-state))
                     new-x (+ dx (:x q))
                     new-y (+ dy (:y q))
                     new-steps (inc (:steps q))

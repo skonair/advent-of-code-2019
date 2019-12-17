@@ -10,6 +10,6 @@
 
 (deftest result
   (testing "the correct answer for the given input for documentation purposes"
-    (is (= 2418 (part1 input)))
-    (is (= [nil nil nil nil nil nil] (part2 input)))))
+    (is (= 14332 (part1 input)))
+    (is (= 1034009 (part2 input)))))
 
