@@ -41,3 +41,12 @@
  
 (defn lcm [a b]
   (/ (* a b) (gcd a b)))
+
+(defn in? 
+    "true if coll contains e"
+    [coll e]  
+    (some #(= e %) coll))
+
+(def not-in? (comp not in?))
+
+
